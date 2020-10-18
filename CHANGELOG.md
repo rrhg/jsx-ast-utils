@@ -1,6 +1,12 @@
 Unreleased
 ==================
 
+3.1.0 / 2020-10-13
+==================
+- [New] add `TSNonNullExpression` (#105)
+- [New] add `AssignmentExpression` (#106)
+- [Dev Deps] update `eslint`
+
 3.0.0 / 2020-10-06
 ==================
 - [Breaking] Don't return node.start & node.end (#100)

@@ -1046,6 +1046,26 @@ describe('getPropValue', () => {
     });
   });
 
+  describe('AssignmentExpression', () => {
+    it('should recognize and extract assignment', () => {
+      const prop = extractProp('<div foo={foo = bar} />');
+
+      const expected = 'foo = bar';
+      const actual = getPropValue(prop);
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should recognize and extract combination assignments', () => {
+      const prop = extractProp('<div foo={foo += bar} />');
+
+      const expected = 'foo += bar';
+      const actual = getPropValue(prop);
+
+      assert.deepEqual(actual, expected);
+    });
+  });
+
   describeIfNotBabylon('Typescript', () => {
     beforeEach(() => {
       changePlugins((pls) => [...pls, 'typescript']);
@@ -1054,7 +1074,7 @@ describe('getPropValue', () => {
     it('should return string representation of variable identifier wrapped in a Typescript non-null assertion', () => {
       const prop = extractProp('<div foo={bar!} />');
 
-      const expected = 'bar';
+      const expected = 'bar!';
       const actual = getPropValue(prop);
 
       assert.equal(actual, expected);
@@ -1063,7 +1083,7 @@ describe('getPropValue', () => {
     it('should return string representation of variable identifier wrapped in a deep Typescript non-null assertion', () => {
       const prop = extractProp('<div foo={(bar!)!} />');
 
-      const expected = 'bar';
+      const expected = '(bar!)!';
       const actual = getPropValue(prop);
 
       assert.equal(actual, expected);
@@ -1076,6 +1096,82 @@ describe('getPropValue', () => {
       const expected = 'bar';
       const actual = getPropValue(prop);
 
+      assert.equal(actual, expected);
+    });
+  });
+
+  describeIfNotBabylon('TSNonNullExpression', () => {
+    beforeEach(() => {
+      changePlugins((pls) => [...pls, 'typescript']);
+    });
+
+    it('should return string representation of a TSNonNullExpression of form `variable!`', () => {
+      const prop = extractProp('<div foo={bar!} />');
+      const expected = 'bar!';
+      const actual = getPropValue(prop);
+      assert.equal(actual, expected);
+    });
+
+    it('should return string representation of a TSNonNullExpression of form `object!.property`', () => {
+      const prop = extractProp('<div foo={bar!.bar} />');
+      const expected = 'bar!.bar';
+      const actual = getPropValue(prop);
+      assert.equal(actual, expected);
+    });
+
+    it('should return string representation of a TSNonNullExpression of form `object!.property!`', () => {
+      const prop = extractProp('<div foo={bar!.bar!} />');
+      const actual = getPropValue(prop);
+      const expected = 'bar!.bar!';
+      assert.equal(actual, expected);
+    });
+
+    it('should return string representation of a TSNonNullExpression of form `object.property!`', () => {
+      const prop = extractProp('<div foo={bar.bar!} />');
+      const actual = getPropValue(prop);
+      const expected = 'bar.bar!';
+      assert.equal(actual, expected);
+    });
+
+    it('should return string representation of a TSNonNullExpression of form `object.property.property!`', () => {
+      const prop = extractProp('<div foo={bar.bar.bar!} />');
+      const actual = getPropValue(prop);
+      const expected = 'bar.bar.bar!';
+      assert.equal(actual, expected);
+    });
+
+    it('should return string representation of a TSNonNullExpression of form `object!.property.property!`', () => {
+      const prop = extractProp('<div foo={bar!.bar.bar!} />');
+      const actual = getPropValue(prop);
+      const expected = 'bar!.bar.bar!';
+      assert.equal(actual, expected);
+    });
+
+    it('should return string representation of an object wrapped in a deep Typescript non-null assertion', () => {
+      const prop = extractProp('<div foo={(bar!.bar)!} />');
+      const expected = '(bar!.bar)!';
+      const actual = getPropValue(prop);
+      assert.equal(actual, expected);
+    });
+
+    it('should return string representation of an object wrapped in a deep Typescript non-null assertion', () => {
+      const prop = extractProp('<div foo={(bar.bar)!} />');
+      const expected = '(bar.bar)!';
+      const actual = getPropValue(prop);
+      assert.equal(actual, expected);
+    });
+
+    it('should return string representation of an object wrapped in a deep Typescript non-null assertion', () => {
+      const prop = extractProp('<div foo={(bar!.bar.bar!)!} />');
+      const expected = '(bar!.bar.bar!)!';
+      const actual = getPropValue(prop);
+      assert.equal(actual, expected);
+    });
+
+    it('should return string representation of variable identifier wrapped in a deep Typescript non-null assertion', () => {
+      const prop = extractProp('<div foo={(bar!)!} />');
+      const expected = '(bar!)!';
+      const actual = getPropValue(prop);
       assert.equal(actual, expected);
     });
   });
